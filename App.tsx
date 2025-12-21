@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import Layout from './components/Layout';
 import VisitorForm from './components/VisitorForm';
 import OfficerDashboard from './components/OfficerDashboard';
@@ -217,6 +218,7 @@ const App: React.FC = () => {
           )}
         </div>
       )}
+      <Analytics />
     </Layout>
   );
 };
