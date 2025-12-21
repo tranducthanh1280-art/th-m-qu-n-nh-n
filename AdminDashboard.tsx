@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
-import { VisitRequest, VisitStatus, Account } from '../types';
+import { VisitRequest, VisitStatus, Account } from './types';
 import { 
   Users, Calendar, CheckCircle, Clock, UserPlus, 
   ShieldCheck, Trash2, LayoutDashboard, UserCog, 
@@ -42,14 +42,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ requests, currentUser }
 
   const handleAddAccount = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Kiểm tra tên đăng nhập chỉ chứa ký tự chữ và số (Alphanumeric)
     const alphanumericRegex = /^[a-zA-Z0-9]+$/;
     if (!alphanumericRegex.test(newAcc.username)) {
       notify('Tên đăng nhập chỉ được chứa chữ cái và chữ số, không khoảng trắng hoặc ký tự đặc biệt!', 'error');
       return;
     }
-
     if (accounts.some(a => a.username === newAcc.username) || newAcc.username === MASTER_ADMIN_USERNAME || newAcc.username === 'admin') {
       notify('Tên đăng nhập đã tồn tại!', 'error');
       return;
@@ -80,7 +77,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ requests, currentUser }
     setShowPasswords(prev => ({ ...prev, [username]: !prev[username] }));
   };
 
-  // Stats logic
   const total = requests.length;
   const approved = requests.filter(r => r.status === VisitStatus.APPROVED).length;
   const pending = requests.filter(r => r.status === VisitStatus.PENDING).length;
@@ -92,7 +88,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ requests, currentUser }
   ];
 
   const unitData = requests.reduce((acc: any[], curr) => {
-    const unit = curr.soldierUnit;
+    const unit = curr.parentUnit;
     const existing = acc.find(a => a.name === unit);
     if (existing) existing.count++;
     else acc.push({ name: unit, count: 1 });
@@ -266,7 +262,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ requests, currentUser }
                   </tr>
                 </thead>
                 <tbody className="divide-y text-gray-900">
-                  {/* Master Admin Row */}
                   <tr className="bg-emerald-50/30">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -324,16 +319,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ requests, currentUser }
                       </td>
                     </tr>
                   ))}
-                  {accounts.length <= 1 && accounts.every(a => a.username === MASTER_ADMIN_USERNAME) && (
-                    <tr>
-                      <td colSpan={5} className="px-6 py-12 text-center">
-                        <div className="flex flex-col items-center text-gray-300">
-                          <Users size={48} className="mb-2 opacity-20" />
-                          <p className="text-sm font-medium">Chưa có tài khoản cán bộ phụ trợ nào.</p>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
                 </tbody>
               </table>
             </div>

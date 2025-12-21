@@ -30,11 +30,8 @@ const TrackingView: React.FC<TrackingViewProps> = ({ requests, onConfirmArrival 
 
   const simulateScan = () => {
     setIsScanning(true);
-    // Simulate a scan delay
     setTimeout(() => {
       setIsScanning(false);
-      // For demo purposes, we search for a random approved request if it exists, 
-      // or just show a message.
       const approved = requests.find(r => r.status === VisitStatus.APPROVED);
       if (approved) {
         setSearchId(approved.id);
@@ -144,7 +141,7 @@ const TrackingView: React.FC<TrackingViewProps> = ({ requests, onConfirmArrival 
                 <div>
                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Quân nhân</p>
                   <p className="font-bold text-slate-900 leading-tight">{result.soldierName}</p>
-                  <p className="text-xs text-gray-500 mt-1 font-medium">{result.soldierUnit}</p>
+                  <p className="text-xs text-gray-500 mt-1 font-medium">{result.specificUnit} - {result.parentUnit}</p>
                 </div>
               </div>
 
