@@ -1,0 +1,7 @@
+{
+  "name": "Hệ thống Đăng ký Thăm Quân nhân",
+  "description": "Ứng dụng chuyên nghiệp giúp số hóa quy trình đăng ký và phê duyệt lịch thăm quân nhân tại đơn vị quân đội.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
