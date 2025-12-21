@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Search, Calendar as CalendarIcon, Check, X, RefreshCw, Sparkles, User, Info, Eye, FileText, Clock as ClockIcon, ShieldCheck, MapPin, FileOutput } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Search, Calendar as CalendarIcon, Check, X, RefreshCw, Sparkles, User, Info, Eye, FileText, Clock as ClockIcon, ShieldCheck, MapPin, FileOutput, ChevronDown, Filter } from 'lucide-react';
 import { VisitRequest, VisitStatus, Account } from '../types';
 import { STATUS_MAP, MOCK_UNIT_SCHEDULES, UNIT_CATEGORY_MAP } from '../constants';
 import { getSmartAdvice } from '../services/gemini';
@@ -15,6 +15,8 @@ interface OfficerDashboardProps {
 const OfficerDashboard: React.FC<OfficerDashboardProps> = ({ requests, onUpdateStatus, currentUser }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const filterRef = useRef<HTMLDivElement>(null);
   const [dateFilter, setDateFilter] = useState(new Date().toISOString().split('T')[0]);
   const [selectedRequest, setSelectedRequest] = useState<VisitRequest | null>(null);
   const [aiAdvice, setAiAdvice] = useState<string>('');
@@ -25,6 +27,17 @@ const OfficerDashboard: React.FC<OfficerDashboardProps> = ({ requests, onUpdateS
 
   const isMaster = currentUser.username === '0353991356';
   
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+        setIsFilterOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const filteredRequests = requests.filter(req => {
     // PHÂN QUYỀN TRUY CẬP DỮ LIỆU
     if (!isMaster) {
@@ -94,23 +107,61 @@ const OfficerDashboard: React.FC<OfficerDashboardProps> = ({ requests, onUpdateS
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
+            
             <div className="grid grid-cols-2 gap-2">
               <input 
                 type="date" 
-                className="w-full rounded-md border-gray-300 border p-2 text-xs font-bold outline-none"
+                className="w-full rounded-md border-gray-300 border p-2 text-xs font-bold outline-none h-[38px]"
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
               />
-              <select
-                className="w-full rounded-md border-gray-300 border p-2 text-xs outline-none focus:ring-1 focus:ring-emerald-500 font-bold"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-              >
-                <option value="ALL">Trạng thái</option>
-                {Object.entries(STATUS_MAP).map(([key, value]) => (
-                  <option key={key} value={key}>{value.label}</option>
-                ))}
-              </select>
+              
+              {/* Custom Status Dropdown */}
+              <div className="relative" ref={filterRef}>
+                <button
+                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                  className="w-full h-[38px] rounded-md border border-gray-300 p-2 text-xs font-bold flex items-center justify-between bg-white hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex items-center gap-1.5 truncate">
+                    {statusFilter === 'ALL' ? (
+                      <><Filter size={14} className="text-gray-400" /> <span>Tất cả</span></>
+                    ) : (
+                      <>
+                        <span className={STATUS_MAP[statusFilter as VisitStatus].color.split(' ')[0]}>
+                          {React.cloneElement(STATUS_MAP[statusFilter as VisitStatus].icon as any, { size: 14 })}
+                        </span>
+                        <span className="truncate">{STATUS_MAP[statusFilter as VisitStatus].label}</span>
+                      </>
+                    )}
+                  </div>
+                  <ChevronDown size={14} className={`text-gray-400 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isFilterOpen && (
+                  <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-xl py-1 animate-in fade-in zoom-in duration-150 origin-top">
+                    <button
+                      onClick={() => { setStatusFilter('ALL'); setIsFilterOpen(false); }}
+                      className={`w-full text-left px-3 py-2 text-xs font-bold flex items-center gap-2 hover:bg-gray-50 ${statusFilter === 'ALL' ? 'text-emerald-700 bg-emerald-50' : 'text-gray-600'}`}
+                    >
+                      <Filter size={14} /> Tất cả trạng thái
+                    </button>
+                    {Object.entries(STATUS_MAP).map(([key, value]) => (
+                      <button
+                        key={key}
+                        onClick={() => { setStatusFilter(key); setIsFilterOpen(false); }}
+                        className={`w-full text-left px-3 py-2 text-xs font-bold flex items-center gap-2 hover:bg-gray-50 ${statusFilter === key ? 'bg-emerald-50' : ''}`}
+                      >
+                        <span className={value.color.split(' ')[0]}>
+                          {React.cloneElement(value.icon as any, { size: 14 })}
+                        </span>
+                        <span className={statusFilter === key ? value.color.split(' ')[0] : 'text-gray-600'}>
+                          {value.label}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
             <button
@@ -130,7 +181,8 @@ const OfficerDashboard: React.FC<OfficerDashboardProps> = ({ requests, onUpdateS
               className={`p-4 rounded-xl shadow-sm border cursor-pointer transition-all duration-200 group relative ${selectedRequest?.id === req.id ? 'border-emerald-500 bg-emerald-50 ring-1 ring-emerald-500' : 'bg-white hover:bg-gray-50'}`}
             >
               <div className="flex justify-between items-start mb-2">
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${STATUS_MAP[req.status].color}`}>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex items-center gap-1 ${STATUS_MAP[req.status].color}`}>
+                  {React.cloneElement(STATUS_MAP[req.status].icon as any, { size: 10 })}
                   {STATUS_MAP[req.status].label}
                 </span>
                 <span className="text-[10px] text-gray-400 font-medium">#{req.id}</span>

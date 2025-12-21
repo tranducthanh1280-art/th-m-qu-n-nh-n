@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Analytics } from '@vercel/analytics/react';
 import Layout from './components/Layout';
 import VisitorForm from './components/VisitorForm';
 import OfficerDashboard from './components/OfficerDashboard';
@@ -136,92 +135,89 @@ const App: React.FC = () => {
   };
 
   return (
-    <>
-      <Layout 
-        user={user} 
-        onLogout={handleLogout} 
-        onShowLogin={() => setShowLogin(true)} 
-        onShowProfile={() => setShowProfile(true)}
-        activeRole={user?.role || 'VISITOR'}
-      >
-        {showLogin && (
-          <Login 
-            accounts={accounts}
-            onLogin={(acc) => { setUser(acc); setShowLogin(false); }} 
-            onClose={() => setShowLogin(false)} 
-          />
-        )}
-        
-        {showProfile && user && (
-          <ProfileSettings 
-            user={user} 
-            onUpdate={(updatedUser) => {
-              setUser(updatedUser);
-              setAccounts(prev => prev.map(a => a.username === updatedUser.username ? updatedUser : a));
-            }} 
-            onClose={() => setShowProfile(false)} 
-          />
-        )}
+    <Layout 
+      user={user} 
+      onLogout={handleLogout} 
+      onShowLogin={() => setShowLogin(true)} 
+      onShowProfile={() => setShowProfile(true)}
+      activeRole={user?.role || 'VISITOR'}
+    >
+      {showLogin && (
+        <Login 
+          accounts={accounts}
+          onLogin={(acc) => { setUser(acc); setShowLogin(false); }} 
+          onClose={() => setShowLogin(false)} 
+        />
+      )}
+      
+      {showProfile && user && (
+        <ProfileSettings 
+          user={user} 
+          onUpdate={(updatedUser) => {
+            setUser(updatedUser);
+            setAccounts(prev => prev.map(a => a.username === updatedUser.username ? updatedUser : a));
+          }} 
+          onClose={() => setShowProfile(false)} 
+        />
+      )}
 
-        {!user || user.role === 'VISITOR' ? (
-          <div className="space-y-6">
-            {user && user.role === 'VISITOR' && !lastSubmitId && (
-              <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-in slide-in-from-top duration-300 mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="bg-emerald-600 text-white p-2.5 rounded-xl shadow-md"><UserIcon size={20} /></div>
-                  <div>
-                    <p className="text-sm font-black text-emerald-900">Thân nhân: {user.fullName}</p>
-                    <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider">Tài khoản đã định danh</p>
-                  </div>
+      {!user || user.role === 'VISITOR' ? (
+        <div className="space-y-6">
+          {user && user.role === 'VISITOR' && !lastSubmitId && (
+            <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-in slide-in-from-top duration-300 mb-6">
+              <div className="flex items-center gap-3">
+                <div className="bg-emerald-600 text-white p-2.5 rounded-xl shadow-md"><UserIcon size={20} /></div>
+                <div>
+                  <p className="text-sm font-black text-emerald-900">Thân nhân: {user.fullName}</p>
+                  <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider">Tài khoản đã định danh</p>
                 </div>
               </div>
-            )}
-            {renderVisitorContent()}
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {user.role === 'OFFICER' ? (
-              <div className="space-y-6">
-                <div className="bg-white p-8 rounded-2xl shadow-xl border border-emerald-50 flex flex-col md:flex-row md:items-center justify-between gap-6 overflow-hidden relative">
-                   <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-full -mr-16 -mt-16 opacity-50"></div>
-                   <div className="relative z-10">
-                     <h2 className="text-2xl font-black text-emerald-900 flex items-center gap-3 uppercase">
-                       <ClipboardList className="text-emerald-700" /> Cổng Phê duyệt: {user.unit}
-                     </h2>
-                     <p className="text-gray-500 mt-1 font-medium italic">Trách nhiệm - Chính xác - Kịp thời</p>
-                   </div>
-                   <div className="bg-emerald-900 text-white px-4 py-2 rounded-xl text-center relative z-10 shadow-lg">
-                      <p className="text-[10px] font-black opacity-70 uppercase tracking-widest">Trạng thái trực</p>
-                      <p className="text-xs font-bold uppercase">Sẵn sàng xử lý</p>
-                   </div>
-                </div>
-                <OfficerDashboard requests={requests} onUpdateStatus={handleUpdateStatus} currentUser={user} />
-              </div>
-            ) : (
-              <div className="space-y-6">
-                 <div className={`p-8 rounded-2xl shadow-2xl border flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden ${user.username === MASTER_PHONE ? 'bg-gradient-to-br from-emerald-950 to-emerald-800 text-white border-emerald-700' : 'bg-white border-emerald-50'}`}>
-                     {user.username === MASTER_PHONE && <Crown className="absolute top-4 right-4 text-yellow-400 opacity-20" size={40} />}
-                     <div className="relative z-10">
-                         <h2 className="text-3xl font-black uppercase tracking-tight">{user.username === MASTER_PHONE ? 'TRUNG TÂM QUẢN TRỊ MASTER' : `TRUNG TÂM QUẢN TRỊ ${user.unit.toUpperCase()}`}</h2>
-                         <p className={`mt-2 font-medium ${user.username === MASTER_PHONE ? 'text-emerald-200' : 'text-gray-500'}`}>
-                           Điều phối và giám sát nhân sự quản lý lịch thăm đơn vị.
-                         </p>
-                     </div>
+            </div>
+          )}
+          {renderVisitorContent()}
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {user.role === 'OFFICER' ? (
+            <div className="space-y-6">
+              <div className="bg-white p-8 rounded-2xl shadow-xl border border-emerald-50 flex flex-col md:flex-row md:items-center justify-between gap-6 overflow-hidden relative">
+                 <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-full -mr-16 -mt-16 opacity-50"></div>
+                 <div className="relative z-10">
+                   <h2 className="text-2xl font-black text-emerald-900 flex items-center gap-3 uppercase">
+                     <ClipboardList className="text-emerald-700" /> Cổng Phê duyệt: {user.unit}
+                   </h2>
+                   <p className="text-gray-500 mt-1 font-medium italic">Trách nhiệm - Chính xác - Kịp thời</p>
                  </div>
-                 <AdminDashboard 
-                   requests={requests} 
-                   currentUser={user} 
-                   accounts={accounts}
-                   onAddAccount={handleAddAccount}
-                   onDeleteAccount={handleDeleteAccount}
-                 />
+                 <div className="bg-emerald-900 text-white px-4 py-2 rounded-xl text-center relative z-10 shadow-lg">
+                    <p className="text-[10px] font-black opacity-70 uppercase tracking-widest">Trạng thái trực</p>
+                    <p className="text-xs font-bold uppercase">Sẵn sàng xử lý</p>
+                 </div>
               </div>
-            )}
-          </div>
-        )}
-      </Layout>
-      <Analytics />
-    </>
+              <OfficerDashboard requests={requests} onUpdateStatus={handleUpdateStatus} currentUser={user} />
+            </div>
+          ) : (
+            <div className="space-y-6">
+               <div className={`p-8 rounded-2xl shadow-2xl border flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden ${user.username === MASTER_PHONE ? 'bg-gradient-to-br from-emerald-950 to-emerald-800 text-white border-emerald-700' : 'bg-white border-emerald-50'}`}>
+                   {user.username === MASTER_PHONE && <Crown className="absolute top-4 right-4 text-yellow-400 opacity-20" size={40} />}
+                   <div className="relative z-10">
+                       <h2 className="text-3xl font-black uppercase tracking-tight">{user.username === MASTER_PHONE ? 'TRUNG TÂM QUẢN TRỊ MASTER' : `TRUNG TÂM QUẢN TRỊ ${user.unit.toUpperCase()}`}</h2>
+                       <p className={`mt-2 font-medium ${user.username === MASTER_PHONE ? 'text-emerald-200' : 'text-gray-500'}`}>
+                         Điều phối và giám sát nhân sự quản lý lịch thăm đơn vị.
+                       </p>
+                   </div>
+               </div>
+               <AdminDashboard 
+                 requests={requests} 
+                 currentUser={user} 
+                 accounts={accounts}
+                 onAddAccount={handleAddAccount}
+                 onDeleteAccount={handleDeleteAccount}
+               />
+            </div>
+          )}
+        </div>
+      )}
+    </Layout>
   );
 };
 
