@@ -1,4 +1,3 @@
-
 import { Document, Packer, Paragraph, Table, TableRow, TableCell, AlignmentType, WidthType, TextRun, HeadingLevel, VerticalAlign } from 'docx';
 import saveAs from 'file-saver';
 import { VisitRequest } from '../types';
