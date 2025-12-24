@@ -1,7 +1,7 @@
 
-import { Document, Packer, Paragraph, Table, TableRow, TableCell, AlignmentType, WidthType, TextRun, BorderStyle, HeadingLevel, VerticalAlign } from 'docx';
+import { Document, Packer, Paragraph, Table, TableRow, TableCell, AlignmentType, WidthType, TextRun, HeadingLevel, VerticalAlign } from 'docx';
 import saveAs from 'file-saver';
-import { VisitRequest, VisitStatus } from '../types';
+import { VisitRequest } from '../types';
 import { STATUS_MAP } from '../constants';
 
 export const exportVisitRequestsToWord = async (requests: VisitRequest[], unitName: string, date: string) => {
@@ -32,7 +32,7 @@ export const exportVisitRequestsToWord = async (requests: VisitRequest[], unitNa
         new Paragraph({
           alignment: AlignmentType.CENTER,
           children: [
-            new TextRun({ text: `Ngày báo cáo: ${date}`, italic: true, size: 22 }),
+            new TextRun({ text: `Ngày báo cáo: ${date}`, italics: true, size: 22 }),
           ],
         }),
         new Paragraph({ text: "", spacing: { after: 400 } }),
@@ -70,7 +70,7 @@ export const exportVisitRequestsToWord = async (requests: VisitRequest[], unitNa
         new Paragraph({
           alignment: AlignmentType.RIGHT,
           children: [
-            new TextRun({ text: `Ngày ${new Date().getDate()} tháng ${new Date().getMonth() + 1} năm ${new Date().getFullYear()}`, italic: true }),
+            new TextRun({ text: `Ngày ${new Date().getDate()} tháng ${new Date().getMonth() + 1} năm ${new Date().getFullYear()}`, italics: true }),
           ],
         }),
         new Paragraph({
@@ -102,7 +102,7 @@ function createHeaderCell(text: string, widthPercent: number) {
   });
 }
 
-function createDataCell(text: string, alignment = AlignmentType.LEFT) {
+function createDataCell(text: string, alignment: (typeof AlignmentType)[keyof typeof AlignmentType] = AlignmentType.LEFT) {
   return new TableCell({
     children: [new Paragraph({ children: [new TextRun({ text, size: 18 })], alignment })],
     verticalAlign: VerticalAlign.CENTER,
