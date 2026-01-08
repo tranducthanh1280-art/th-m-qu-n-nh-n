@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import Layout from './components/Layout';
 import VisitorForm from './components/VisitorForm';
 import OfficerDashboard from './components/OfficerDashboard';
@@ -135,14 +136,15 @@ const App: React.FC = () => {
   };
 
   return (
-    <Layout 
-      user={user} 
-      onLogout={handleLogout} 
-      onShowLogin={() => setShowLogin(true)} 
-      onShowProfile={() => setShowProfile(true)}
-      activeRole={user?.role || 'VISITOR'}
-    >
-      {showLogin && (
+    <>
+      <Layout 
+        user={user} 
+        onLogout={handleLogout} 
+        onShowLogin={() => setShowLogin(true)} 
+        onShowProfile={() => setShowProfile(true)}
+        activeRole={user?.role || 'VISITOR'}
+      >
+        {showLogin && (
         <Login 
           accounts={accounts}
           onLogin={(acc) => { setUser(acc); setShowLogin(false); }} 
@@ -218,6 +220,8 @@ const App: React.FC = () => {
         </div>
       )}
     </Layout>
+    <SpeedInsights />
+    </>
   );
 };
 
